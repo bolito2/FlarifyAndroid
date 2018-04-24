@@ -28,4 +28,17 @@
         android:tint="@android:color/transparent"
         app:srcCompat="@drawable/flip" />
 
+    <ImageButton
+        android:id="@+id/settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/flip"
+        android:layout_alignLeft="@+id/flip"
+        android:layout_alignStart="@+id/flip"
+        android:layout_marginBottom="11dp"
+        android:background="@android:color/transparent"
+        android:backgroundTint="@android:color/transparent"
+        android:tint="@android:color/transparent"
+        app:srcCompat="@drawable/settings" />
+
 </RelativeLayout>

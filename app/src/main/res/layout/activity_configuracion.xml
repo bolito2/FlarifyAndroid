@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.bolito2.flarifyandroid.Configuracion">
+
+    <TextView
+        android:id="@+id/caraText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="Precisión detección cara" />
+
+    <SeekBar
+        android:id="@+id/cara"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/caraText"
+        android:layout_marginTop="17dp"
+        android:max="30"
+        android:progress="5" />
+
+    <TextView
+        android:id="@+id/ojosText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/caraText"
+        android:layout_alignStart="@+id/caraText"
+        android:layout_below="@+id/cara"
+        android:layout_marginTop="16dp"
+        android:text="Precisión detección ojos" />
+
+    <SeekBar
+        android:id="@+id/ojos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/ojosText"
+        android:layout_marginTop="17dp"
+        android:max="30"
+        android:progress="5" />
+
+</RelativeLayout>

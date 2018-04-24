@@ -127,12 +127,15 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(MainActivity.this, Configuracion.class), 69);
+                Intent i = new Intent(MainActivity.this, Configuracion.class);
+                i.putExtra("pCara", pCara);
+                i.putExtra("pOjos", pOjos);
+                startActivityForResult(i, 69);
             }
         });
 
     }
-
+    float pCara = 1.1f, pOjos = 1.05f;
     String flare_path;
 
     @Override
@@ -169,9 +172,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK){
-            Log.e("HECES", String.valueOf(data.getFloatExtra("pCara", 0f)));
-            Log.e("POPPE", String.valueOf(data.getFloatExtra("pOjos", 0f)));
-            setPrecision(data.getFloatExtra("pCara", 0f), data.getFloatExtra("pOjos", 0f));
+            pCara = data.getFloatExtra("pCara", 0f);
+            pOjos = data.getFloatExtra("pOjos", 0f);
+            setPrecision(pCara, pOjos);
         }
     }
 

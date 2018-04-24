@@ -37,6 +37,9 @@ public class Configuracion extends AppCompatActivity {
             }
         });
 
+        cara.setProgress((int)(151 - 100*getIntent().getFloatExtra("pCara", 0f)));
+        ojos.setProgress((int)(151 - 100*getIntent().getFloatExtra("pOjos", 0f)));
+
         cara.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

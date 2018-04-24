@@ -153,13 +153,15 @@ void drawFlare(Mat& img, int& maxEyeSize, Rect& eye, float &flareCenterX, float&
 
 Mat temp, gris;
 
-void JNICALL Java_com_bolito2_flarifyandroid_MainActivity_flarify(JNIEnv *env, jobject instance, jlong matAddrGray) {
+void JNICALL Java_com_bolito2_flarifyandroid_MainActivity_flarify(JNIEnv *env, jobject instance, jlong matAddrGray, jint orientation) {
     Mat &img = *(Mat *) matAddrGray;
     cvtColor(img, img, COLOR_BGRA2BGR);
     flip(img, temp, 1);
     temp.copyTo(img);
 
-    rotate(img, img,  ROTATE_90_CLOCKWISE);
+    if(orientation < 45 || orientation >= 315)rotate(img, img,  ROTATE_90_CLOCKWISE);
+    if(orientation >= 45 && orientation < 135)rotate(img, img,  ROTATE_180);
+    if(orientation >= 135 && orientation < 225)rotate(img, img,  ROTATE_90_COUNTERCLOCKWISE);
 
     cvtColor(img, gris, COLOR_BGR2GRAY);
     equalizeHist(gris, gris);
@@ -170,7 +172,7 @@ void JNICALL Java_com_bolito2_flarifyandroid_MainActivity_flarify(JNIEnv *env, j
         circle(img, Point(300, 300), 50, Scalar(255,0,0), 5);
     }
     else{
-        face_classifier.detectMultiScale(gris, faces, 1.1, 3, 0,Size(200, 200), Size());
+        face_classifier.detectMultiScale(gris, faces, 1.1, 3, 0,Size(300, 300), Size());
         for (int f = 0; f < faces.size(); f++) {
             rectangle(img, faces[f], Scalar(0, 255, 0), 2);
 
@@ -206,6 +208,8 @@ void JNICALL Java_com_bolito2_flarifyandroid_MainActivity_flarify(JNIEnv *env, j
 
 
     cvtColor(img, img, COLOR_BGR2BGRA);
-    rotate(img, img,  ROTATE_90_COUNTERCLOCKWISE);
+    if(orientation < 45 || orientation >= 315)rotate(img, img,  ROTATE_90_COUNTERCLOCKWISE);
+    if(orientation >= 45 && orientation < 135)rotate(img, img,  ROTATE_180);
+    if(orientation >= 135 && orientation < 225)rotate(img, img,  ROTATE_90_CLOCKWISE);
 }
 }

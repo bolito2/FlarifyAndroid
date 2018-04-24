@@ -1,13 +1,20 @@
 package com.bolito2.flarifyandroid;
 
 import android.Manifest;
+import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
+import android.view.OrientationEventListener;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 import org.opencv.android.BaseLoaderCallback;
@@ -27,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     private static final String TAG = "OCVSample::Activity";
     private CameraBridgeViewBase _cameraBridgeViewBase;
+    OrientationEventListener oel;
 
     private BaseLoaderCallback _baseLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -53,6 +61,17 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         super.onCreate(savedInstanceState);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if(Build.VERSION.SDK_INT < 16) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }else{
+            View decorView = getWindow().getDecorView();
+
+            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            decorView.setSystemUiVisibility(uiOptions);
+
+            ActionBar actionBar = getActionBar();
+            if(actionBar != null)actionBar.hide();
+        }
         setContentView(R.layout.activity_main);
 
         // Permissions for Android 6+
@@ -69,6 +88,20 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         eye_path = writeClassifier(R.raw.haarcascade_eye, "haarcascade_eye.xml");
 
         flare_path = writeClassifier(R.raw.flare, "flare.png");
+        oel = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
+            @Override
+            public void onOrientationChanged(int orientation) {
+                orientacion = orientation;
+            }
+        };
+
+        if (oel.canDetectOrientation() == true) {
+            Log.v("Orientacion", "Can detect orientation");
+            oel.enable();
+        } else {
+            Log.v("Orientacion", "Cannot detect orientation");
+            oel.disable();
+        }
     }
 
     String flare_path;
@@ -115,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public void onDestroy() {
         super.onDestroy();
         disableCamera();
+        oel.disable();
     }
 
     public void disableCamera() {
@@ -153,12 +187,16 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     }
     String face_path, eye_path;
 
+    int orientacion = -1;
+
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        getWindowManager().getDefaultDisplay().getOrientation();
+
         Mat mat = inputFrame.rgba();
-        flarify(mat.getNativeObjAddr());
+        flarify(mat.getNativeObjAddr(), orientacion);
         return mat;
     }
 
-    public native void flarify(long matAddrGray);
+    public native void flarify(long matAddrGray, int orientation);
     public native void preparativos(String flare_path, String face_cascade_path, String eye_cascade_path);
 }

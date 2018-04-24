@@ -12,11 +12,11 @@
 #include <android/log.h>
 
 
+extern "C"
+{
 using namespace std;
 using namespace cv;
 
-extern "C"
-{
 Mat flare, flare_res, flare_alpha, flare_alpha_res;
 CascadeClassifier face_classifier, eye_classifier;
 ostringstream os;
@@ -24,6 +24,7 @@ ostringstream os;
 Rect left_eye, right_eye;
 
 bool mode = false;
+float p_cara = 1.1f, p_ojos = 1.05f;
 
 void JNICALL
 Java_com_bolito2_flarifyandroid_MainActivity_preparativos(JNIEnv *env, jobject instance,
@@ -44,7 +45,7 @@ Java_com_bolito2_flarifyandroid_MainActivity_preparativos(JNIEnv *env, jobject i
     right_eye = Rect(0,0,0,0);
 
     Mat flare_file = cv::imread(path, IMREAD_UNCHANGED);
-    vector<Mat> ch;
+    vector<cv::Mat> ch;
 
     split(flare_file, ch);
     ch[0] = ch[3];
@@ -75,7 +76,7 @@ Java_com_bolito2_flarifyandroid_MainActivity_preparativos(JNIEnv *env, jobject i
 
 float multiplier = 4;
 
-Mat gris_roi, img_roi;
+Mat gris_roi;
 
 vector<int> rejectLevels;
 vector<double> levelWeights;
@@ -84,9 +85,8 @@ vector<Rect> eyes;
 
 Rect getEye(Mat &gris, Mat &img, Rect& eyeZone, int &maxEyeSize){
     gris_roi = gris(eyeZone);
-    img_roi = img(eyeZone);
 
-    eye_classifier.detectMultiScale(gris_roi, eyes, rejectLevels,levelWeights,  1.05, 0, 0, Size(50,50), Size(), true);
+    eye_classifier.detectMultiScale(gris_roi, eyes, rejectLevels,levelWeights, p_ojos, 0, 0, Size(50,50), Size(), true);
 
     /*
     for (int i = 0; i < eyes.size(); i++) {
@@ -174,7 +174,7 @@ void JNICALL Java_com_bolito2_flarifyandroid_MainActivity_flarify(JNIEnv *env, j
         circle(img, Point(300, 300), 50, Scalar(255,0,0), 5);
     }
     else{
-        face_classifier.detectMultiScale(gris, faces, 1.1, 3, 0,Size(300, 300), Size());
+        face_classifier.detectMultiScale(gris, faces, p_cara, 3, 0,Size(300, 300), Size());
         for (int f = 0; f < faces.size(); f++) {
             rectangle(img, faces[f], Scalar(0, 255, 0), 2);
 
@@ -212,5 +212,17 @@ void JNICALL Java_com_bolito2_flarifyandroid_MainActivity_flarify(JNIEnv *env, j
     if(orientation < 45 || orientation >= 315)rotate(img, img,  ROTATE_90_COUNTERCLOCKWISE);
     if(orientation >= 45 && orientation < 135)rotate(img, img,  ROTATE_180);
     if(orientation >= 135 && orientation < 225)rotate(img, img,  ROTATE_90_CLOCKWISE);
+}
+void JNICALL
+Java_com_bolito2_flarifyandroid_MainActivity_setPrecision(JNIEnv *env, jobject instance,
+                                                          jfloat pCara, jfloat pOjos) {
+
+    p_cara = pCara;
+    p_ojos = pOjos;
+
+    os << p_cara << " " << p_ojos;
+    __android_log_print(ANDROID_LOG_ERROR, "C++", os.str().c_str(), 1);
+    os.str("");
+
 }
 }

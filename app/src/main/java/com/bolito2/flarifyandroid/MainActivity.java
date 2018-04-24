@@ -20,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -126,9 +127,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, Configuracion.class));
+                startActivityForResult(new Intent(MainActivity.this, Configuracion.class), 69);
             }
         });
+
     }
 
     String flare_path;
@@ -160,6 +162,16 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
             ActionBar actionBar = getActionBar();
             if(actionBar != null)actionBar.hide();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK){
+            Log.e("HECES", String.valueOf(data.getFloatExtra("pCara", 0f)));
+            Log.e("POPPE", String.valueOf(data.getFloatExtra("pOjos", 0f)));
+            setPrecision(data.getFloatExtra("pCara", 0f), data.getFloatExtra("pOjos", 0f));
         }
     }
 
@@ -238,4 +250,5 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     public native void flarify(long matAddrGray, int orientation, int cameraIndex);
     public native void preparativos(String flare_path, String face_cascade_path, String eye_cascade_path);
+    public native void setPrecision(float pCara, float pOjos);
 }

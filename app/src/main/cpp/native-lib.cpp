@@ -153,11 +153,13 @@ void drawFlare(Mat& img, int& maxEyeSize, Rect& eye, float &flareCenterX, float&
 
 Mat temp, gris;
 
-void JNICALL Java_com_bolito2_flarifyandroid_MainActivity_flarify(JNIEnv *env, jobject instance, jlong matAddrGray, jint orientation) {
+void JNICALL Java_com_bolito2_flarifyandroid_MainActivity_flarify(JNIEnv *env, jobject instance, jlong matAddrGray, jint orientation, jint cameraIndex) {
     Mat &img = *(Mat *) matAddrGray;
     cvtColor(img, img, COLOR_BGRA2BGR);
     flip(img, temp, 1);
     temp.copyTo(img);
+
+    if(cameraIndex == 0)flip(img, img, 1);
 
     if(orientation < 45 || orientation >= 315)rotate(img, img,  ROTATE_90_CLOCKWISE);
     if(orientation >= 45 && orientation < 135)rotate(img, img,  ROTATE_180);
@@ -205,7 +207,6 @@ void JNICALL Java_com_bolito2_flarifyandroid_MainActivity_flarify(JNIEnv *env, j
             drawFlare(img, maxEyeSize, right_eye, flareCenterX, flareCenterY, flareWidth, flareHeight);
         }
     }
-
 
     cvtColor(img, img, COLOR_BGR2BGRA);
     if(orientation < 45 || orientation >= 315)rotate(img, img,  ROTATE_90_COUNTERCLOCKWISE);

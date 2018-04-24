@@ -16,7 +16,12 @@ import android.view.OrientationEventListener;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
@@ -35,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private static final String TAG = "OCVSample::Activity";
     private CameraBridgeViewBase _cameraBridgeViewBase;
     OrientationEventListener oel;
+    ImageButton flipCamera;
 
     private BaseLoaderCallback _baseLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -56,17 +62,19 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         }
     };
 
+    int cameraIndex = 1;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        if(Build.VERSION.SDK_INT < 16) {
+        if(Build.VERSION.SDK_INT < 19) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }else{
             View decorView = getWindow().getDecorView();
 
-            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            int uiOptions = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
             decorView.setSystemUiVisibility(uiOptions);
 
             ActionBar actionBar = getActionBar();
@@ -81,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         _cameraBridgeViewBase = (CameraBridgeViewBase) findViewById(R.id.main_surface);
         _cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
-        _cameraBridgeViewBase.setCameraIndex(1);
+        _cameraBridgeViewBase.setCameraIndex(cameraIndex);
         _cameraBridgeViewBase.setCvCameraViewListener(this);
 
         face_path = writeClassifier(R.raw.lbpcascade_frontalface_improved, "lbpcascade_face.xml");
@@ -102,6 +110,16 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             Log.v("Orientacion", "Cannot detect orientation");
             oel.disable();
         }
+        flipCamera = findViewById(R.id.flip);
+        flipCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                _cameraBridgeViewBase.disableView();
+                cameraIndex = cameraIndex ^ 1;
+                _cameraBridgeViewBase.setCameraIndex(cameraIndex);
+                _cameraBridgeViewBase.enableView();
+            }
+        });
     }
 
     String flare_path;
@@ -193,10 +211,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         getWindowManager().getDefaultDisplay().getOrientation();
 
         Mat mat = inputFrame.rgba();
-        flarify(mat.getNativeObjAddr(), orientacion);
+        flarify(mat.getNativeObjAddr(), orientacion, cameraIndex);
         return mat;
     }
 
-    public native void flarify(long matAddrGray, int orientation);
+    public native void flarify(long matAddrGray, int orientation, int cameraIndex);
     public native void preparativos(String flare_path, String face_cascade_path, String eye_cascade_path);
 }
